@@ -46,7 +46,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.agenarisk</groupId>
-			<artifactId>com.agenarisk.core</artifactId>
+			<artifactId>com.agenarisk.core-peng</artifactId>
 			<version>${version.com.agenarisk.core}</version>
 		</dependency>
 		
