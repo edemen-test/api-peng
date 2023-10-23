@@ -7,7 +7,7 @@ This is a wrapper API for the AgenaRisk Core engine and puts the focus on:
 
 ## Prerequisites
 * JDK 8
-<br>We recommend jdk1.8.0_192
+<br>We recommend jdk1.8.0_382
 <br>Note: versions of Java above 8 have not been tested but we have had user reports of successfully running on Java 11 and 17
 * Maven
 <br>Version >= 3.6.1
@@ -18,6 +18,7 @@ See [Example App](https://github.com/AgenaRisk/api-example-app) for usage exampl
 
 # Licensing
 Once cloned, you will need to perform mvn clean to trigger automatic download of non-Java dependencies into your project/lib directory.
+Most command examples are not platform-specific, please make sure you use correct escaping for your console of choice.
 ~~~~
 mvn clean compile
 ~~~~
