@@ -110,7 +110,7 @@ public class Node implements Networked<Node>, Comparable<Node>, Identifiable<Nod
 	/**
 	 * This stores graphics for the Node, and should be set on model load
 	 */
-	private JSONObject jsonGraphics;
+	private JSONObject jsonGraphics = new JSONObject();
 	
 	/**
 	 * Cache of Variables
@@ -591,6 +591,13 @@ public class Node implements Networked<Node>, Comparable<Node>, Identifiable<Nod
 			node.setStates(jsonConfiguration.optJSONArray(State.Field.states.toString()));
 		}
 		
+		JSONObject jPercentiles = jsonConfiguration.optJSONObject(NodeConfiguration.Field.percentiles.toString());
+		if (jPercentiles != null){
+			Double lowerPercentile = jPercentiles.optDouble(NodeConfiguration.Percentiles.lowerPercentile.toString(), 25d);
+			Double upperPercentile = jPercentiles.optDouble(NodeConfiguration.Percentiles.upperPercentile.toString(), 75d);
+			node.setCustomPercentileSettings(lowerPercentile, upperPercentile);
+		}
+		
 		if (jsonConfiguration.optBoolean(NodeConfiguration.Field.output.toString(), false)){
 			en.setConnectableOutputNode(true);
 		}
@@ -655,11 +662,11 @@ public class Node implements Networked<Node>, Comparable<Node>, Identifiable<Nod
 		
 		// Load graphics
 		try {
-			boolean visible = jsonNode.optJSONObject(NodeGraphics.Field.graphics.toString()).optBoolean(NodeGraphics.Field.visible.toString());
+			boolean visible = jsonNode.optJSONObject(NodeGraphics.Field.graphics.toString()).optBoolean(NodeGraphics.Field.visible.toString(), true);
 			node.getLogicNode().setVisible(visible);
 		}
 		catch(NullPointerException ex){
-			// Ignore, property not set
+			// Ignore, node graphics not set
 		}
 		
 		return node;
@@ -1470,6 +1477,10 @@ public class Node implements Networked<Node>, Comparable<Node>, Identifiable<Nod
 		return json;
 	}
 	
+	public JSONObject getGraphicsJson(){
+		return jsonGraphics;
+	}
+	
 	/**
 	 * Find a state by given label in this Node's underlying logic node.
 	 * 
@@ -1698,6 +1709,37 @@ public class Node implements Networked<Node>, Comparable<Node>, Identifiable<Nod
 		VariableList logicVarList = getLogicNode().getExpressionVariables();
 		List<Variable> list = ((List<String>)logicVarList.getAllVariableNames()).stream().map(varName -> getVariable(varName)).collect(Collectors.toList());
 		return Collections.unmodifiableList(list);
+	}
+	
+	public boolean setCustomPercentileSettings(double lowerPercentile, double upperPercentile){
+		if (!(logicNode instanceof ContinuousEN)){
+			return false;
+		}
+		
+		ContinuousEN cien = (ContinuousEN) logicNode;
+		cien.setPercentileSettingsOnNodeForScenario(null, lowerPercentile, upperPercentile);
+		
+		return true;
+	}
+	
+	public double getLowerPercentileSetting(){
+		try {
+			if (logicNode instanceof ContinuousEN){
+				return (Double)((ContinuousEN)logicNode).getPercentileSettingsOnNodeForScenario(null).get(1);
+			}
+		}
+		catch (Exception ex){}
+		return 25d;
+	}
+	
+	public double getUpperPercentileSetting(){
+		try {
+			if (logicNode instanceof ContinuousEN){
+				return (Double)((ContinuousEN)logicNode).getPercentileSettingsOnNodeForScenario(null).get(2);
+			}
+		}
+		catch (Exception ex){}
+		return 75d;
 	}
 
 }
